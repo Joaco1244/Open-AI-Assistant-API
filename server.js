@@ -1,19 +1,3 @@
-{
-  "name": "open-ai-assistant-api",
-  "version": "1.0.0",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "dotenv": "^16.3.1",
-    "helmet": "^7.0.0",
-    "cors": "^2.8.5",
-    "pino": "^8.15.0",
-    "pino-http": "^8.6.0"
-  }
-}
 
 const express = require("express");
 require("dotenv").config();
