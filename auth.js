@@ -1,48 +1,34 @@
-const jwt = require("jsonwebtoken");
+const express = require("express");
+const router = express.Router();
 const db = require("../db/connection");
+const { issueTokenForClient } = require("../lib/auth");
 
-const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
-
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET is required in env");
-}
-
-async function issueTokenForClient(client) {
-  const payload = {
-    sub: client.id,
-    client: {
-      id: client.id,
-      name: client.name,
-      email: client.email
-    }
-  };
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-}
-
-async function authMiddleware(req, res, next) {
-  const header = req.headers.authorization || "";
-  const token = header.startsWith("Bearer ") ? header.slice(7) : null;
-  if (!token) return res.status(401).json({ error: "Missing token" });
-
+/**
+ * Exchange client API key for a JWT token.
+ * Body:
+ * {
+ *   "api_key": "client-specific-api-key"
+ * }
+ */
+router.post("/token", async (req, res) => {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    // Load client and check subscription
-    const client = await db.getClientById(decoded.sub);
-    if (!client) return res.status(401).json({ error: "Invalid token (client missing)" });
+    const { api_key } = req.body || {};
+    if (!api_key) return res.status(400).json({ error: "api_key required" });
 
+    const client = await db.getClientByApiKey(api_key);
+    if (!client) return res.status(401).json({ error: "Invalid api_key" });
+
+    // If client subscription inactive: return error
     if (client.subscription_status !== "active") {
-      return res.status(403).json({ error: "Client subscription is not active" });
+      return res.status(403).json({ error: "Subscription is not active" });
     }
 
-    req.client = client;
-    next();
+    const token = await issueTokenForClient(client);
+    res.json({ token, expiresIn: process.env.JWT_EXPIRES_IN || "1h" });
   } catch (err) {
-    return res.status(401).json({ error: "Invalid token" });
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
   }
-}
+});
 
-module.exports = {
-  issueTokenForClient,
-  authMiddleware
-};
+module.exports = router;

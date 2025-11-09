@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Ascendigit Chat UI (Test)</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 2rem auto; }
+    #messages { border: 1px solid #ddd; padding: 1rem; height: 300px; overflow: auto; background: #fafafa; }
+    .msg { margin: 0.5rem 0; }
+    .user { color: #0b70ff; }
+    .bot { color: #222; }
+    #controls { margin-top: 1rem; display:flex; gap:8px; }
+    input, button { padding: 0.6rem; font-size: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Ascendigit Chat UI (local test)</h1>
+  <div>
+    <label>JWT Token (paste here): <input id="token" style="width:60%" /></label>
+  </div>
+  <div id="messages"></div>
+  <div id="controls">
+    <input id="text" placeholder="Type a message" style="flex:1" />
+    <button id="send">Send</button>
+  </div>
+
+  <script>
+    const messages = document.getElementById("messages");
+    const tokenIn = document.getElementById("token");
+    const textIn = document.getElementById("text");
+    const sendBtn = document.getElementById("send");
+
+    // Replace these defaults with values from your DB or /api/thread creation flow:
+    let assistantId = ""; // set a default assistant id if available
+    let threadId = "";
+
+    function append(cls, text) {
+      const el = document.createElement("div");
+      el.className = 'msg ' + cls;
+      el.textContent = text;
+      messages.appendChild(el);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    async function sendMessage(text) {
+      append('user', text);
+      const token = tokenIn.value.trim();
+      if (!token) return append('bot', 'Missing JWT token - get one at /api/auth/token');
+
+      // If no threadId, ask server to create one automatically via /api/chat
+      const body = { assistantId: assistantId || (window.DEFAULT_ASSISTANT_ID || ""), threadId: threadId || null, text };
+      try {
+        const resp = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify(body)
+        });
+        const json = await resp.json();
+        if (!resp.ok) {
+          append('bot', 'Error: ' + (json.error || JSON.stringify(json)));
+          return;
+        }
+        threadId = json.threadId;
+        append('bot', json.text || JSON.stringify(json.meta || json));
+      } catch (err) {
+        append('bot', 'Network error: ' + err.message);
+      }
+    }
+
+    sendBtn.addEventListener('click', () => {
+      const text = textIn.value.trim();
+      if (!text) return;
+      sendMessage(text);
+      textIn.value = '';
+    });
+
+    textIn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendBtn.click();
+    });
+  </script>
+</body>
+</html>
