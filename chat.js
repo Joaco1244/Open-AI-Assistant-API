@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { authMiddleware } = require("./auth.js");
+const { authMiddleware } = require("./authMiddleware.js");
 const openai = require("./openai.js");
 const db = require("./connection.js");
 
