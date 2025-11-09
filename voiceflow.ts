@@ -1,8 +1,8 @@
 import express, { Request, Response } from "express";
-import { verifyVoiceflowSignature } from "../security/verifyVoiceflow";
-import openaiService from "../services/openai";
-import { getSessionStore } from "../stores";
-import logger from "../utils/logger";
+import { verifyVoiceflowSignature } from "./verifyVoiceflow.ts";
+import openaiService from "./openai.ts";
+import { getSessionStore } from "./index.ts";
+import logger from "./logger.ts";
 
 const router = express.Router();
 
