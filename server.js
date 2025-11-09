@@ -11,7 +11,7 @@ const threadRoutes = require("./thread.js");
 const chatRoutes = require("./chat.js");
 const assistantRoutes = require("./assistant.js");
 const webhookRoutes = require("./webhooks.js");
-const db = require("./db/connection");
+const db = require("./connection.js");
 
 const logger = pino({ level: process.env.LOG_LEVEL || (process.env.NODE_ENV === "production" ? "info" : "debug") });
 
