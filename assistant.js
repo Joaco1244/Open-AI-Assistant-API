@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { authMiddleware } = require("../lib/auth");
-const openai = require("../lib/openai");
-const db = require("../db/connection");
+const { authMiddleware } = require("./auth.js");
+const openai = require("./openai.js");
+const db = require("./connection.js");
 const { v4: uuidv4 } = require("uuid");
 
 /**
