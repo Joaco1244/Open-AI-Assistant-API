@@ -6,11 +6,11 @@ const cors = require("cors");
 const pino = require("pino");
 const pinoHttp = require("pino-http");
 const rateLimiter = require("./rateLimiter.js");
-const authRoutes = require("./routes/auth");
-const threadRoutes = require("./routes/thread");
-const chatRoutes = require("./routes/chat");
-const assistantRoutes = require("./routes/assistant");
-const webhookRoutes = require("./routes/webhooks");
+const authRoutes = require("./auth.js");
+const threadRoutes = require("./thread.js");
+const chatRoutes = require("./chat.js");
+const assistantRoutes = require("./assistant.js");
+const webhookRoutes = require("./webhooks.js");
 const db = require("./db/connection");
 
 const logger = pino({ level: process.env.LOG_LEVEL || (process.env.NODE_ENV === "production" ? "info" : "debug") });
