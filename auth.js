@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("./connection.js");
-const { issueTokenForClient } = require("../lib/auth");
+const { issueTokenForClient } = require("./auth.js");
 
 /**
  * Exchange client API key for a JWT token.
