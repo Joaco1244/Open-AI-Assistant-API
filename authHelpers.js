@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 
 function issueTokenForClient(client) {
   const payload = { id: client.id, name: client.name };
-  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "504h" });
 }
 
 function authMiddleware(req, res, next) {
