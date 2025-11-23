@@ -10,7 +10,13 @@ module.exports = {
     const connectionString = process.env.DATABASE_URL;
     if (!connectionString) throw new Error("DATABASE_URL is required");
 
-    pool = new Pool({ connectionString });
+    // 🔥 FIX: Add SSL for Render PostgreSQL
+    pool = new Pool({
+      connectionString,
+      ssl: {
+        rejectUnauthorized: false
+      }
+    });
 
     // Ensure DB is reachable
     await pool.query("SELECT 1");
@@ -46,7 +52,15 @@ module.exports = {
     const r = await pool.query(
       `INSERT INTO clients (id, name, email, business_name, openai_assistant_id, subscription_status, api_key)
        VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-      [client.id, client.name, client.email, client.business_name, client.openai_assistant_id, client.subscription_status || "trial", client.api_key]
+      [
+        client.id,
+        client.name,
+        client.email,
+        client.business_name,
+        client.openai_assistant_id,
+        client.subscription_status || "trial",
+        client.api_key
+      ]
     );
     return r.rows[0];
   },
